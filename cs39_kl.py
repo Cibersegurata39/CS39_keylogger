@@ -31,7 +31,7 @@ teclas_ign =["Shift_L",
 ]
 
 def marca_tiempo():
-  timestamp = datetime.now().strftime("%d %m %Y %H:%M:%S")
+  timestamp = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
   with open(archivo, "a", encoding="utf-8") as f:
     f.write(f"\n\n--- Inicio: {timestamp} ---\n")
 
