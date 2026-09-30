@@ -40,7 +40,7 @@ def tecla(event):
   #Mostrar en la terminal
   print(mensaje)
   #Guardar en el archivo
-  if event.keysym == "spece":
+  if event.keysym == "space":
     caracter = " "
   elif event.keysym == "Return":
     caracter = "\n"
